@@ -8,3 +8,5 @@ Description: This package contains functions used in evaluating low flows of the
 License: What license is it under?
 Encoding: UTF-8
 LazyData: true
+Imports:
+    ncdf4,dataRetrieval,PearsonDS,dataRetrieval,lubridate,ggplot2

@@ -1,11 +1,10 @@
 Package: NWMLowFlows
 Type: Package
-Title: What the Package Does (Title Case)
+Title: Evaluate Low Flows in National Water Model Data 
 Version: 0.1.0
-Author: Who wrote it
-Maintainer: The package maintainer <yourself@somewhere.net>
-Description: More about what it does (maybe more than one line)
-    Use four spaces when indenting paragraphs within the Description.
+Author: Carly Hansen, Spencer McDonald, Javad Shafiei, April Nabors
+Maintainer: The package maintainer <carly.hansen@utah.edu>
+Description: This package contains functions used in evaluating low flows of the NWM
 License: What license is it under?
 Encoding: UTF-8
 LazyData: true

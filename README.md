@@ -3,7 +3,7 @@
 This package contains functions that are useful in data pre-processing and evaluation tasks for exploring performance of the National Water Model streamflow data, especially under low-flow and drought conditions. An example of an evaluation workflow is described below:
 
 ## Workflow:
-
+![alt text](https://github.com/cahhansen/NWMLowFlows/blob/master/NWMLowFlows%20R%20Package%20WorkFlow.png "Workflow diagram")
 
 ***
 

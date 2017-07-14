@@ -2,12 +2,13 @@
 #'
 #' @param directory Directory where hourly NetCDF files are kept. Must be named for the year (yyyy) of the NetCDF files contained inside.
 #' @param comids A vector of COMID values (identifiers of NHDPlus stream reaches).
-#' @param suffix Suffix for the output file name.
+#' @param suffix Optional suffix to append to the output file name. Default is no suffix.
+#' @param write.output Boolean for whether or not to write the results to a .csv file. Default is TRUE.
 #' @return A time series of daily streamflow for each of the user-specified reaches.
 #' @examples
-#' aggHourlyStreamflow("~/1994","8020924","CaseStudy")
+#' dailyQ <- aggHourlyStreamflow("~/1994","8020924","CaseStudy",TRUE)
 
-hourly2DailyQ <- function(directory,comids,suffix){
+hourly2DailyQ <- function(directory,comids,suffix="",write.output=TRUE){
   year <- substr(directory,nchar(directory)-3,nchar(directory))
   #Create list for cycling through hourly files
   hourList <- sprintf("%02d",seq(0,23,by=1))
@@ -43,7 +44,7 @@ hourly2DailyQ <- function(directory,comids,suffix){
         }
         for (i in featureIndex){
           #Get streamflow for chosen reaches(in cms)
-          nwmData<-ncdf4::ncvar_get(nwmFile,
+          nwmData <- ncdf4::ncvar_get(nwmFile,
                             varid = "streamflow",
                             start = c(i,1), #Start value for dimensions (first value is stream reach index)
                             count = c(1,-1)) #Number of values to get in each dimension
@@ -64,7 +65,9 @@ hourly2DailyQ <- function(directory,comids,suffix){
   dailyQDF$Date <- as.Date(paste0(year,"-",substr(dailyQDF$Date,1,2),"-",substr(dailyQDF$Date,3,4)))
   #Rename Columns to have COMIDs instead of index values
   names(dailyQDF) <- c("Date",as.character(comids))
-  #Output results to csv file
-  write.csv(dailyQDF,file=paste0(directory,"/",year,suffix,".csv"),row.names=FALSE)
+  if (write.output==TRUE){
+    #Output results to csv file
+    write.csv(dailyQDF,file=paste0(directory,"/",year,suffix,".csv"),row.names=FALSE)
+  }
   return(dailyQDF)
 }

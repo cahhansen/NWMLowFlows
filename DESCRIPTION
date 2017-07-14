@@ -10,3 +10,4 @@ Encoding: UTF-8
 LazyData: true
 Imports:
     ncdf4,dataRetrieval,PearsonDS,dataRetrieval,lubridate,ggplot2
+RoxygenNote: 6.0.1

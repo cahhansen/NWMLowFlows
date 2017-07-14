@@ -1,9 +1,11 @@
-#NWMLowFlows R Package
+# NWMLowFlows R Package
 
 This package contains functions that are useful in data pre-processing and evaluation tasks for exploring performance of the National Water Model streamflow data, especially under low-flow and drought conditions. An example of an evaluation workflow is described below:
 
-Workflow:
+## Workflow:
 
+
+***
 
 Function | Function Description
 -------- | --------------------

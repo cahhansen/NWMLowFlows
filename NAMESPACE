@@ -2,3 +2,4 @@
 
 export(NWMFlowStats)
 export(USGSFlowStats)
+export(hourly2DailyQ)

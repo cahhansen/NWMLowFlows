@@ -5,6 +5,7 @@
 #' @param suffix Optional suffix to append to the output file name. Default is no suffix.
 #' @param write.output Boolean for whether or not to write the results to a .csv file. Default is TRUE.
 #' @return A time series of daily streamflow for each of the user-specified reaches.
+#' @export
 #' @examples
 #' dailyQ <- aggHourlyStreamflow("~/1994","8020924","CaseStudy",TRUE)
 

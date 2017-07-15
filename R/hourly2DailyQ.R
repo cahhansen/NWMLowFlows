@@ -7,7 +7,7 @@
 #' @return A time series of daily streamflow for each of the user-specified reaches.
 #' @export
 #' @examples
-#' dailyQ <- aggHourlyStreamflow("~/1994","8020924","CaseStudy",TRUE)
+#' dailyQ <- hourly2DailyQ("~/1994","8020924","test",TRUE)
 
 hourly2DailyQ <- function(directory,comids,suffix="",write.output=TRUE){
   year <- substr(directory,nchar(directory)-3,nchar(directory))
@@ -18,10 +18,10 @@ hourly2DailyQ <- function(directory,comids,suffix="",write.output=TRUE){
   ncdfFileList <- shell('dir /b', intern=TRUE)
   dateList <- unique(substr(ncdfFileList,5,8))
   #Initialize data frame for daily summaries
-  dailyQDF <- data.frame(Date = dateList)
+  dailyQDF <- data.frame(Date=dateList)
   for (y in dateList){
     #Initialize data frame for hourly values
-    hourlyQDF <- data.frame(Hour<-hourList)
+    hourlyQDF <- data.frame(Hour=hourList)
     for (x in hourList){
       #Get and open netcdf files
       ncdfFileName <- paste0(year,y,x,"00_streamflow.nc")
@@ -40,7 +40,7 @@ hourly2DailyQ <- function(directory,comids,suffix="",write.output=TRUE){
         #Get index of COMID from netcdf (dim=1 is the stream reach)
         featureIDList <- nwmFile$dim$feature_id$vals
         featureIndex <- match(comids,featureIDList)
-        if (y=="0101" & x == "01"){
+        if (y=="0101" & x == "00"){
           dailyQDF[as.character(featureIndex)] <- NA
         }
         for (i in featureIndex){
@@ -57,7 +57,11 @@ hourly2DailyQ <- function(directory,comids,suffix="",write.output=TRUE){
     }
 
     #Calculate daily mean streamflow
-    meanDailyQ <- colMeans(hourlyQDF[,2:length(hourlyQDF)],na.rm=TRUE)
+    if(length(hourlyQDF) > 2){
+      meanDailyQ <- colMeans(hourlyQDF[,-1],na.rm=TRUE)
+    }else{
+      meanDailyQ <- mean(hourlyQDF[,2],na.rm=TRUE)
+    }
     #Add daily mean streamflow to data frame
     dailyQDF[(dailyQDF$Date==y),c(as.character(featureIndex))] <- meanDailyQ
     print(y)

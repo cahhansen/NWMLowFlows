@@ -9,6 +9,7 @@
 #' @param plot.on plots time series of input data. Default is TRUE
 #' @return list of goodness of fit statistics
 #' @export
+#' @import hydroGOF
 #'
 
 retroNWMUSGSEval <- function(gageID,comID,flowfile,plot.on=TRUE){
@@ -33,8 +34,8 @@ retroNWMUSGSEval <- function(gageID,comID,flowfile,plot.on=TRUE){
   qDataNWM$QPerc <- calc_percentile(data=qDataNWM)
   qDataUSGS$QPerc <- calc_percentile(data=qDataUSGS)
 
-  QGOF_relative <- hydroGOF::gof(sim=qDataNWM$QPerc,obs=qDataUSGS$QPerc)
-  QGOF_absolute <- hydroGOF::gof(sim=qDataNWM$Discharge,obs=qDataUSGS$Discharge)
+  QGOF_relative <- hydroGOF:::gof(sim=qDataNWM$QPerc,obs=qDataUSGS$QPerc)
+  QGOF_absolute <- hydroGOF:::gof(sim=qDataNWM$Discharge,obs=qDataUSGS$Discharge)
   #Graphical representation
   if (plot.on==TRUE){
     hydroGOF::ggof(sim=qDataNWM$QPerc,obs=qDataUSGS$QPerc)
@@ -62,8 +63,8 @@ retroNWMUSGSEval <- function(gageID,comID,flowfile,plot.on=TRUE){
       calc_percentile(qDataUSGSSeasonal[(qDataNWMSeasonal$Season==i),])
     NWMsub <- qDataNWMSeasonal[(qDataNWMSeasonal$Season==i),]
     USGSsub <- qDataUSGSSeasonal[(qDataUSGSSeasonal$Season==i),]
-    tempgof_relative <- hydroGOF::gof(sim=NWMsub$QPerc,obs=USGSsub$QPerc)
-    tempgof_absolute <- hydroGOF::gof(sim=NWMsub$Discharge,obs=USGSsub$Discharge)
+    tempgof_relative <- hydroGOF:::gof(sim=NWMsub$QPerc,obs=USGSsub$QPerc)
+    tempgof_absolute <- hydroGOF:::gof(sim=NWMsub$Discharge,obs=USGSsub$Discharge)
     SeasonalGOF_relative[,i] <- tempgof_relative[,1]
     SeasonalGOF_absolute[,i] <- tempgof_absolute[,1]
   }
@@ -71,16 +72,16 @@ retroNWMUSGSEval <- function(gageID,comID,flowfile,plot.on=TRUE){
   row.names(SeasonalGOF_absolute) <- row.names(tempgof_absolute)
   #-------------------------------------------------------------------------------------------
   #GOF by year
-  qDataUSGS$Year <- year(qDataUSGS$Date)
-  qDataNWM$Year <- year(qDataNWM$Date)
+  qDataUSGS$Year <- lubridate::year(qDataUSGS$Date)
+  qDataNWM$Year <- lubridate::year(qDataNWM$Date)
   YearlyGOF_relative <- data.frame(matrix(ncol = 24, nrow = 20))
   colnames(YearlyGOF_relative)<-as.character(seq(1993,2016,by=1))
   YearlyGOF_absolute <- data.frame(matrix(ncol = 24, nrow = 20))
   colnames(YearlyGOF_absolute)<-as.character(seq(1993,2016,by=1))
   for (j in seq(1993,2016,by=1)){
-    tempgof_relative <- hydroGOF::gof(sim=qDataNWM[(qDataNWM$Year==j),"QPerc"],
+    tempgof_relative <- hydroGOF:::gof(sim=qDataNWM[(qDataNWM$Year==j),"QPerc"],
                          obs=qDataUSGS[(qDataUSGS$Year==j),"QPerc"])
-    tempgof_absolute <- hydroGOF::gof(sim=qDataNWM[(qDataNWM$Year==j),"Discharge"],
+    tempgof_absolute <- hydroGOF:::gof(sim=qDataNWM[(qDataNWM$Year==j),"Discharge"],
                          obs=qDataUSGS[(qDataUSGS$Year==j),"Discharge"])
     YearlyGOF_relative[,as.character(j)] <- tempgof_relative[,1]
     YearlyGOF_absolute[,as.character(j)] <- tempgof_absolute[,1]

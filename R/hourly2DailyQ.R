@@ -2,77 +2,66 @@
 #'
 #' @param directory Directory where hourly NetCDF files are kept. Must be named for the year (yyyy) of the NetCDF files contained inside.
 #' @param comids A vector of COMID values (identifiers of NHDPlus stream reaches).
-#' @param suffix Optional suffix to append to the output file name. Default is no suffix.
-#' @param write.output Boolean for whether or not to write the results to a .csv file. Default is TRUE.
 #' @return A time series of daily streamflow for each of the user-specified reaches.
 #' @export
+#' @import ncdf4
 #' @examples
-#' dailyQ <- hourly2DailyQ("~/1994","8020924","test",TRUE)
+#' dailyQ <- hourly2DailyQ("~/1994",c("18578829", "18578755"))
 
-hourly2DailyQ <- function(directory,comids,suffix="",write.output=TRUE){
+hourly2DailyQ <- function(directory,comids){
   year <- substr(directory,nchar(directory)-3,nchar(directory))
   #Create list for cycling through hourly files
   hourList <- sprintf("%02d",seq(0,23,by=1))
 
   #Cycle through the hourly time steps and convert to daily
-  ncdfFileList <- shell('dir /b', intern=TRUE)
+  ncdfFileList <- list.files(path=directory,pattern = "\\.nc$")
   dateList <- unique(substr(ncdfFileList,5,8))
   #Initialize data frame for daily summaries
   dailyQDF <- data.frame(Date=dateList)
+  dailyQDF[as.character(comids)] <- as.numeric(NA)
   for (y in dateList){
     #Initialize data frame for hourly values
     hourlyQDF <- data.frame(Hour=hourList)
+    hourlyQDF[as.character(comids)] <- as.numeric(NA)
     for (x in hourList){
       #Get and open netcdf files
       ncdfFileName <- paste0(year,y,x,"00_streamflow.nc")
       ncdfFile <- paste0(directory,"/",ncdfFileName)
-      nwmFile <- ncdf4::nc_open(ncdfFile,readunlim=FALSE)
+      nwmFile <- nc_open(ncdfFile,readunlim=FALSE)
       #Check if the streamflow data is missing (if so, assign NA value)
       if (nwmFile$dim$time$len==0){
-        #Get index of COMID from netcdf (dim=1 is the stream reach)
-        featureIDList <- nwmFile$dim$feature_id$vals
-        featureIndex <- match(comids,featureIDList)
-        for (i in featureIndex){
-          hourlyQDF[(hourlyQDF$Hour==x),as.character(i)]=NA
-        }
-        ncdf4::nc_close(nwmFile)
+        nc_close(nwmFile)
       }else{
-        #Get index of COMID from netcdf (dim=1 is the stream reach)
-        featureIDList <- nwmFile$dim$feature_id$vals
-        featureIndex <- match(comids,featureIDList)
+        #Initialize dataframe with columns for each reach (COMID)
         if (y=="0101" & x == "00"){
-          dailyQDF[as.character(featureIndex)] <- NA
+          #Get index of COMID from netcdf (dim=1 is the stream reach)
+          featureIDList <- nwmFile$dim$feature_id$vals
+          featureIndex <- match(comids,featureIDList)
         }
-        for (i in featureIndex){
+        for (i in seq(1,length(featureIndex),by=1)){
           #Get streamflow for chosen reaches(in cms)
-          nwmData <- ncdf4::ncvar_get(nwmFile,
+          nwmData <- ncvar_get(nwmFile,
                             varid = "streamflow",
-                            start = c(i,1), #Start value for dimensions (first value is stream reach index)
+                            start = c(featureIndex[i],1), #Start value for dimensions (first value is stream reach index)
                             count = c(1,-1)) #Number of values to get in each dimension
           #Add hourly streamflow value to data frame
-          hourlyQDF[(hourlyQDF$Hour==x),as.character(i)] <- nwmData
+          hourlyQDF[(hourlyQDF$Hour==x),comids[i]] <- nwmData
         }
-        ncdf4::nc_close(nwmFile)
+        nc_close(nwmFile)
       }
     }
 
     #Calculate daily mean streamflow
-    if(length(hourlyQDF) > 2){
+    if(length(comids) >= 2){
       meanDailyQ <- colMeans(hourlyQDF[,-1],na.rm=TRUE)
     }else{
       meanDailyQ <- mean(hourlyQDF[,2],na.rm=TRUE)
     }
     #Add daily mean streamflow to data frame
-    dailyQDF[(dailyQDF$Date==y),c(as.character(featureIndex))] <- meanDailyQ
-    print(y)
+    dailyQDF[(dailyQDF$Date==y),c(comids)] <- meanDailyQ
+    print(paste0("Finished processing: ",y))
   }
   #Format Date
   dailyQDF$Date <- as.Date(paste0(year,"-",substr(dailyQDF$Date,1,2),"-",substr(dailyQDF$Date,3,4)))
-  #Rename Columns to have COMIDs instead of index values
-  names(dailyQDF) <- c("Date",as.character(comids))
-  if (write.output==TRUE){
-    #Output results to csv file
-    write.csv(dailyQDF,file=paste0(directory,"/",year,suffix,".csv"),row.names=FALSE)
-  }
   return(dailyQDF)
 }

@@ -4,16 +4,12 @@
 \alias{hourly2DailyQ}
 \title{Aggregate NetCDF Hourly Streamflow to Daily}
 \usage{
-hourly2DailyQ(directory, comids, suffix = "", write.output = TRUE)
+hourly2DailyQ(directory, comids)
 }
 \arguments{
 \item{directory}{Directory where hourly NetCDF files are kept. Must be named for the year (yyyy) of the NetCDF files contained inside.}
 
 \item{comids}{A vector of COMID values (identifiers of NHDPlus stream reaches).}
-
-\item{suffix}{Optional suffix to append to the output file name. Default is no suffix.}
-
-\item{write.output}{Boolean for whether or not to write the results to a .csv file. Default is TRUE.}
 }
 \value{
 A time series of daily streamflow for each of the user-specified reaches.
@@ -22,5 +18,5 @@ A time series of daily streamflow for each of the user-specified reaches.
 Aggregate NetCDF Hourly Streamflow to Daily
 }
 \examples{
-dailyQ <- aggHourlyStreamflow("~/1994","8020924","CaseStudy",TRUE)
+dailyQ <- hourly2DailyQ("~/1994",c("18578829", "18578755"))
 }

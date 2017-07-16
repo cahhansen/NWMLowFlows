@@ -36,7 +36,7 @@ retroNWMUSGSEval <- function(gageID,comID,flowfile,plot.on=TRUE){
   QGOF_relative <- hydroGOF::gof(sim=qDataNWM$QPerc,obs=qDataUSGS$QPerc)
   QGOF_absolute <- hydroGOF::gof(sim=qDataNWM$Discharge,obs=qDataUSGS$Discharge)
   #Graphical representation
-  if (plot.on=TRUE){
+  if (plot.on==TRUE){
     hydroGOF::ggof(sim=qDataNWM$QPerc,obs=qDataUSGS$QPerc)
   }
   #--------------------------------------------------------------------------------------------

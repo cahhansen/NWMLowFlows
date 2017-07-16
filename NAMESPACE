@@ -3,3 +3,5 @@
 export(NWMFlowStats)
 export(USGSFlowStats)
 export(hourly2DailyQ)
+export(retroNWMUSGSEval)
+import(ncdf4)

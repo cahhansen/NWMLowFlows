@@ -4,12 +4,12 @@
 \alias{hourly2DailyQ}
 \title{Aggregate NetCDF Hourly Streamflow to Daily}
 \usage{
-hourly2DailyQ(directory, comids)
+hourly2DailyQ(directory, comID)
 }
 \arguments{
 \item{directory}{Directory where hourly NetCDF files are kept. Must be named for the year (yyyy) of the NetCDF files contained inside.}
 
-\item{comids}{A vector of COMID values (identifiers of NHDPlus stream reaches).}
+\item{comID}{A vector of COMID values (identifiers of NHDPlus stream reaches).}
 }
 \value{
 A time series of daily streamflow for each of the user-specified reaches.

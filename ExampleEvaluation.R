@@ -13,3 +13,7 @@ write.csv(x,file = paste0('Accessory Files/LowFlowThresholds/',gageID,'.csv'))
 
 y=retroNWMUSGSEval(gageID,comID,flowfile=filename,plot.on=TRUE)
 save(y,file = paste0(path,'/RetrospectiveEvaluation/',comID,'.RData'))
+
+startDate="1993-01-01"
+endDate = "2016-10-31"
+z=lowFlowEval(gageID=gageID,comID=comID,flowfile=filename,threshold="x7Q10",startDate=startDate,endDate=endDate)

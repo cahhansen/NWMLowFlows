@@ -1,14 +1,14 @@
 #' Aggregate NetCDF Hourly Streamflow to Daily
 #'
 #' @param directory Directory where hourly NetCDF files are kept. Must be named for the year (yyyy) of the NetCDF files contained inside.
-#' @param comids A vector of COMID values (identifiers of NHDPlus stream reaches).
+#' @param comID A vector of COMID values (identifiers of NHDPlus stream reaches).
 #' @return A time series of daily streamflow for each of the user-specified reaches.
 #' @export
 #' @import ncdf4
 #' @examples
 #' dailyQ <- hourly2DailyQ("~/1994",c("18578829", "18578755"))
 
-hourly2DailyQ <- function(directory,comids){
+hourly2DailyQ <- function(directory,comID){
   year <- substr(directory,nchar(directory)-3,nchar(directory))
   #Create list for cycling through hourly files
   hourList <- sprintf("%02d",seq(0,23,by=1))
@@ -18,11 +18,11 @@ hourly2DailyQ <- function(directory,comids){
   dateList <- unique(substr(ncdfFileList,5,8))
   #Initialize data frame for daily summaries
   dailyQDF <- data.frame(Date=dateList)
-  dailyQDF[as.character(comids)] <- as.numeric(NA)
+  dailyQDF[as.character(comID)] <- as.numeric(NA)
   for (y in dateList){
     #Initialize data frame for hourly values
     hourlyQDF <- data.frame(Hour=hourList)
-    hourlyQDF[as.character(comids)] <- as.numeric(NA)
+    hourlyQDF[as.character(comID)] <- as.numeric(NA)
     for (x in hourList){
       #Get and open netcdf files
       ncdfFileName <- paste0(year,y,x,"00_streamflow.nc")
@@ -36,7 +36,7 @@ hourly2DailyQ <- function(directory,comids){
         if (y=="0101" & x == "00"){
           #Get index of COMID from netcdf (dim=1 is the stream reach)
           featureIDList <- nwmFile$dim$feature_id$vals
-          featureIndex <- match(comids,featureIDList)
+          featureIndex <- match(comID,featureIDList)
         }
         for (i in seq(1,length(featureIndex),by=1)){
           #Get streamflow for chosen reaches(in cms)
@@ -45,20 +45,20 @@ hourly2DailyQ <- function(directory,comids){
                             start = c(featureIndex[i],1), #Start value for dimensions (first value is stream reach index)
                             count = c(1,-1)) #Number of values to get in each dimension
           #Add hourly streamflow value to data frame
-          hourlyQDF[(hourlyQDF$Hour==x),comids[i]] <- nwmData
+          hourlyQDF[(hourlyQDF$Hour==x),comID[i]] <- nwmData
         }
         nc_close(nwmFile)
       }
     }
 
     #Calculate daily mean streamflow
-    if(length(comids) >= 2){
+    if(length(comID) >= 2){
       meanDailyQ <- colMeans(hourlyQDF[,-1],na.rm=TRUE)
     }else{
       meanDailyQ <- mean(hourlyQDF[,2],na.rm=TRUE)
     }
     #Add daily mean streamflow to data frame
-    dailyQDF[(dailyQDF$Date==y),c(comids)] <- meanDailyQ
+    dailyQDF[(dailyQDF$Date==y),c(comID)] <- meanDailyQ
     print(paste0("Finished processing: ",y))
   }
   #Format Date

@@ -19,10 +19,12 @@ USGSFlowStats <- function(gageID,startDate,endDate){
     q <- qData[(qData$Month==i),"X_00060_00003"]
     #Use Log-Pearson Type III Distribution. See: https://pubs.usgs.gov/sir/2008/5126/section3.html and
     #http://deq1.bse.vt.edu/sifnwiki/index.php/R_iha_7q10#PearsonDS_function_details for the details on this function
+    #Remove 0's (will cause error in log function)
+    q <- q[q != 0]
     logq<-log(q)
     pars <- PearsonDS:::pearsonIIIfitML(logq)
-    x7Q2 <- exp(qpearsonIII(0.5, params = pars$par))
-    x7Q10 <- exp(qpearsonIII(0.1, params = pars$par))
+    x7Q2 <- exp(PearsonDS::qpearsonIII(0.5, params = pars$par))
+    x7Q10 <- exp(PearsonDS::qpearsonIII(0.1, params = pars$par))
     min <- min(q)
     avg <- mean(q)
     max <- max(q)
@@ -54,10 +56,12 @@ NWMFlowStats <- function(comID,flowfile){
     q <- qData[(qData$Month==i),comID_column]
     #Use Log-Pearson Type III Distribution. See: https://pubs.usgs.gov/sir/2008/5126/section3.html and
     #http://deq1.bse.vt.edu/sifnwiki/index.php/R_iha_7q10#PearsonDS_function_details for the details on this function
+    #Remove 0's (will cause error in log function)
+    q <- q[q != 0]
     logq<-log(q)
     pars <- PearsonDS:::pearsonIIIfitML(logq)
-    x7Q2 <- exp(qpearsonIII(0.5, params = pars$par))
-    x7Q10 <- exp(qpearsonIII(0.1, params = pars$par))
+    x7Q2 <- exp(PearsonDS::qpearsonIII(0.5, params = pars$par))
+    x7Q10 <- exp(PearsonDS::qpearsonIII(0.1, params = pars$par))
     min <- min(q)
     avg <- mean(q)
     max <- max(q)

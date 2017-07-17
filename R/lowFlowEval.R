@@ -35,7 +35,7 @@ lowFlowEval <- function(gageID,comID,flowfile,threshold,startDate,endDate){
   #Calculate how often the streamflow (observed and modeled) went below a threshold
   years <- seq(lubridate::year(startDate),lubridate::year(endDate),by=1)
   belowthreshold <- function(qDF,statsDF,threshold){
-    lowFlowEvents <- data.frame(Year=sort(rep(years,12)),Month=rep(month.name,12))
+    lowFlowEvents <- data.frame(Year=sort(rep(years,12)),Month=rep(month.name,length(years)))
     for (m in month.name){
       qDFsub <- qDF[(qDF$Month==m),]
       qDFsub$Year <- lubridate::year(qDFsub$Date)
@@ -47,16 +47,14 @@ lowFlowEval <- function(gageID,comID,flowfile,threshold,startDate,endDate){
         lowFlowEvents[(lowFlowEvents$Year==i & lowFlowEvents$Month==m),"NumEvents"] = numbelow
       }
     }
-    lowFlowEvents$Date <- as.yearmon(paste0(lowFlowEventsUSGS$Year,"-",lowFlowEventsUSGS$Month),format="%Y-%B")
+    lowFlowEvents$Date <- zoo::as.yearmon(paste0(lowFlowEvents$Year,'-',lowFlowEvents$Month),format='%Y-%B')
     return(lowFlowEvents)
   }
 
   lowFlowEventsUSGS <- belowthreshold(qDF = qDataUSGS, statsDF = USGS_results, threshold = threshold)
   lowFlowEventsNWM <- belowthreshold(qDF = qDataNWM, statsDF = NWM_results, threshold = threshold)
-  lowFlowSummary <- data.frame(Year=sort(rep(years,12)),Month=rep(month.name,12),DiffEvents = lowFlowEventsUSGS$NumEvents-lowFlowEventsNWM$NumEvents, Date=lowFlowEventsUSGS$Date)
-  plot(x=lowFlowEventsUSGS$Date,y=lowFlowSummary$DiffEvents,type='l',ylab="Difference in Number of Low Flow Events",xlab="Time",
-  main=paste0("Low-Flow Threshold:",threshold))
+  lowFlowSummary <- data.frame(Date=lowFlowEventsUSGS$Date,USGS=lowFlowEventsUSGS$NumEvents,NWM=lowFlowEventsNWM$NumEvents)
+  lowFlowSummary$DiffEvents <- lowFlowSummary$USGS-lowFlowSummary$NWM
 
-  plot(x=lowFlowEventsUSGS$Date,y=lowFlowEventsUSGS$NumEvents,type='l',col=1,main=paste0("Low-Flow Threshold:",threshold),ylab="Number of Low Flow Events",xlab="Time")
-  lines(x=lowFlowEventsNWM$Date,y=lowFlowEventsNWM$NumEvents,col=2)
+  return(lowFlowSummary)
 }

@@ -47,7 +47,11 @@ USGSFlowStats <- function(gageID,startDate,endDate){
 #'
 NWMFlowStats <- function(comID,flowfile){
   qData <- read.csv(flowfile)
-  comID_column <- paste0("X",comID)
+  if(substr(comID,1,1)!="X"){
+    comID_column <- paste0("X",comID)
+  }else{
+    comID_column <- comID
+  }
   #Calculate monthly statistics
   qData$Month <- months(as.Date(qData$Date,format="%m/%d/%Y"))
   monthlyQStats <- data.frame(Month = unique(qData$Month),Min=NA,Avg=NA,Max=NA,Perc5=NA,Perc25=NA,x7Q10=NA,x7Q2=NA)

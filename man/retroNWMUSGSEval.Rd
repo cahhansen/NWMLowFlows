@@ -4,7 +4,7 @@
 \alias{retroNWMUSGSEval}
 \title{retroNWMUSGSEval}
 \usage{
-retroNWMUSGSEval(gageID, comID, flowfile, plot.on = TRUE)
+retroNWMUSGSEval(gageID, comID, flowfile, plot.on = TRUE, startDate, endDate)
 }
 \arguments{
 \item{gageID}{USGS gage ID, character}

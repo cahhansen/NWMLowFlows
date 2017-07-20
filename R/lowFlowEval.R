@@ -23,6 +23,7 @@ lowFlowEval <- function(gageID,comID,flowfile,threshold,startDate,endDate){
   #Get discharge from Historical Modeled (Retrospective) data
   qDataNWM <- read.csv(flowfile)
   qDataNWM$Date <- as.Date(qDataNWM$Date, format="%m/%d/%Y")
+  qDataNWM <- qDataNWM[(qDataNWM$Date >= startDate & qDataNWM$Date <= endDate),]
   comID_column <- paste0("X",comID)
   qDataNWM <- qDataNWM[,(names(qDataNWM) %in% c("Date",comID_column))]
   colnames(qDataNWM) <- c("Date","Discharge")
